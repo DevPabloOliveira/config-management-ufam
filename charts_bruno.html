@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mapa Mental de Estudos GitHub com amCharts</title>
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      text-align: center;
+      padding: 20px;
+    }
+
+    #chartdiv {
+      width: 100%;
+      max-width: 100%;
+      height: 550px;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mapa Mental de Estudos GitHub - Feito com Apple Intelligence</h1>
+
+  <!-- Scripts do amCharts -->
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/hierarchy.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+  <!-- Div onde o gráfico será renderizado -->
+  <div id="chartdiv"></div>
+
+  <p>
+    Componente retirado de: 
+    <a href="https://www.amcharts.com/demos/zoomable-force-directed-tree/" target="_blank">
+      amCharts Demos
+    </a>
+  </p>
+  
+  <p>Modificações por: Pablo Oliveira</p>
+
+  <script>
+    /**
+     * ---------------------------------------
+     * This demo was created using amCharts 5.
+     *
+     * For more information visit:
+     * https://www.amcharts.com/
+     *
+     * Documentation is available at:
+     * https://www.amcharts.com/docs/v5/
+     * ---------------------------------------
+     */
+
+    // Create root element
+    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+    var root = am5.Root.new("chartdiv");
+
+    // Set themes
+    // https://www.amcharts.com/docs/v5/concepts/themes/
+    root.setThemes([
+      am5themes_Animated.new(root)
+    ]);
+
+    // Dados para o gráfico sobre aprendizado de GitHub
+    var data = {
+      name: "Aprendendo GitHub",
+      value: 0,
+      children: [{
+        name: "Básico",
+        children: [{
+          name: "Conceitos Fundamentais",
+          children: [{ name: "Repositório", value: 1 }, { name: "Commit", value: 1 }, { name: "Branch", value: 1 }, { name: "Merge", value: 1 }, { name: "Clone", value: 1 }, { name: "Fork", value: 1 }, { name: "Pull Request", value: 1 }]
+        }, {
+          name: "Comandos Essenciais",
+          children: [{ name: "git init", value: 1 }, { name: "git add", value: 1 }, { name: "git commit", value: 1 }, { name: "git status", value: 1 }, { name: "git push", value: 1 }, { name: "git pull", value: 1 }, { name: "git clone", value: 1 }]
+        }, {
+          name: "Interface Web",
+          children: [{ name: "Criar Repositório", value: 1 }, { name: "Issues", value: 1 }, { name: "Projects", value: 1 }, { name: "Wiki", value: 1 }]
+        }]
+      }, {
+        name: "Intermediário",
+        children: [{
+          name: "Colaboração",
+          children: [{ name: "Resolvendo Conflitos", value: 1 }, { name: "Code Review", value: 1 }, { name: "Organizações", value: 1 }, { name: "Permissões", value: 1 }]
+        }, {
+          name: "Branches",
+          children: [{ name: "Rebase", value: 1 }, { name: "Cherry-pick", value: 1 }, { name: "Git Flow", value: 1 }, { name: "Tags", value: 1 }]
+        }, {
+          name: "Ferramentas",
+          children: [{ name: "GitHub Desktop", value: 1 }, { name: "VS Code Integration", value: 1 }, { name: "GitKraken", value: 1 }]
+        }]
+      }, {
+        name: "Avançado",
+        children: [{
+          name: "Automação (CI/CD)",
+          children: [{ name: "GitHub Actions", value: 1 }, { name: "Workflows (.yml)", value: 1 }, { name: "Secrets", value: 1 }, { name: "Runners", value: 1 }]
+        }, {
+          name: "Segurança",
+          children: [{ name: "Code Scanning", value: 1 }, { name: "Secret Scanning", value: 1 }, { name: "Dependabot", value: 1 }]
+        }, {
+          name: "Recursos Extras",
+          children: [{ name: "GitHub Packages", value: 1 }, { name: "GitHub Pages", value: 1 }, { name: "Webhooks", value: 1 }, { name: "API do GitHub", value: 1 }]
+        }]
+      }]
+    };
+
+
+    var zoomableContainer = root.container.children.push(
+      am5.ZoomableContainer.new(root, {
+        width: am5.p100,
+        height: am5.p100,
+        wheelable: true,
+        pinchZoom: true
+      })
+    );
+
+    var zoomTools = zoomableContainer.children.push(am5.ZoomTools.new(root, {
+      target: zoomableContainer
+    }));
+
+    // Create series
+    // https://www.amcharts.com/docs/v5/charts/hierarchy/#Adding
+    var series = zoomableContainer.contents.children.push(am5hierarchy.ForceDirected.new(root, {
+      maskContent: false, //!important with zoomable containers
+      singleBranchOnly: false,
+      downDepth: 2,
+      topDepth: 1,
+      initialDepth: 3,
+      valueField: "value",
+      categoryField: "name",
+      childDataField: "children",
+      idField: "name",
+      linkWithField: "linkWith",
+      manyBodyStrength: -10,
+      centerStrength: 0.8
+    }));
+
+    series.get("colors").setAll({
+      step: 2
+    });
+
+    series.links.template.set("strength", 0.5);
+    series.labels.template.set("minScale", 0);
+
+    series.data.setAll([data]);
+
+    series.set("selectedDataItem", series.dataItems[0]);
+
+
+    // Make stuff animate on load
+    series.appear(1000, 100);
+  </script>
+</body>
+</html>
+
